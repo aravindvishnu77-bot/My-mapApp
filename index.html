@@ -1,847 +1,617 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="ml">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>My Map</title>
+  <title>എന്റെ മാപ്പ്</title>
 
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
 
-<style>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-* {
-  box-sizing: border-box;
-}
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
 
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  font-family: Arial, sans-serif;
-}
+    #map {
+      width: 100%;
+      height: 100%;
+    }
 
-#map {
-  width: 100%;
-  height: 100%;
-}
+    /* TOP PANEL */
+    .panel {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 30px);
+      max-width: 650px;
+      z-index: 1000;
 
-/* TOP SEARCH */
+      background: rgba(255,255,255,0.97);
+      padding: 14px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
 
-.top-card {
-  position: absolute;
-  top: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 24px);
-  max-width: 600px;
-  background: white;
-  border-radius: 24px;
-  padding: 12px;
-  z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0,0,0,.25);
-}
+    .title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
 
-.search-row {
-  display: flex;
-  gap: 8px;
-}
+    .search-row {
+      display: flex;
+      gap: 8px;
+    }
 
-#searchInput {
-  flex: 1;
-  height: 55px;
-  border: 1px solid #ddd;
-  border-radius: 18px;
-  padding: 0 16px;
-  font-size: 17px;
-  outline: none;
-}
+    #searchInput {
+      flex: 1;
+      height: 54px;
+      border: 1px solid #ccc;
+      border-radius: 16px;
+      padding: 0 16px;
+      font-size: 17px;
+      outline: none;
+    }
 
-#searchInput:focus {
-  border-color: #4285f4;
-}
+    #searchInput:focus {
+      border-color: #4285f4;
+    }
 
-.search-button {
-  width: 58px;
-  height: 55px;
-  border: 0;
-  border-radius: 18px;
-  background: #4285f4;
-  color: white;
-  font-size: 25px;
-}
+    .search-btn {
+      width: 60px;
+      height: 54px;
+      border: none;
+      border-radius: 16px;
+      background: #4285f4;
+      color: white;
+      font-size: 25px;
+    }
 
-/* ROUTE */
+    .route-btn {
+      width: 100%;
+      height: 54px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 16px;
+      background: #222;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
 
-.route-button {
-  width: 100%;
-  height: 52px;
-  margin-top: 9px;
-  border: 0;
-  border-radius: 17px;
-  background: #202124;
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-}
+    .location-btn {
+      position: absolute;
+      right: 18px;
+      bottom: 25px;
+      z-index: 1000;
 
-/* MESSAGE */
+      width: 62px;
+      height: 62px;
+      border: none;
+      border-radius: 50%;
+      background: white;
+      font-size: 28px;
 
-.message {
-  position: absolute;
-  top: 145px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 45px);
-  max-width: 560px;
-  background: white;
-  padding: 15px;
-  border-radius: 18px;
-  text-align: center;
-  font-size: 17px;
-  box-shadow: 0 3px 15px rgba(0,0,0,.25);
-  z-index: 999;
-  display: none;
-}
+      box-shadow: 0 3px 15px rgba(0,0,0,0.25);
+    }
 
-/* LOCATION */
+    .message {
+      display: none;
+      margin-top: 10px;
+      background: white;
+      padding: 14px;
+      border-radius: 18px;
+      text-align: center;
+      font-size: 17px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+    }
 
-.location-button {
-  position: absolute;
-  right: 20px;
-  bottom: 25px;
-  width: 58px;
-  height: 58px;
-  border: none;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 3px 15px rgba(0,0,0,.30);
-  font-size: 27px;
-  z-index: 1000;
-}
-
-/* INFO CARD */
-
-.place-card {
-  position: absolute;
-  bottom: 95px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 35px);
-  max-width: 560px;
-  background: white;
-  border-radius: 20px;
-  padding: 16px;
-  z-index: 998;
-  box-shadow: 0 3px 15px rgba(0,0,0,.25);
-  display: none;
-}
-
-.place-name {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.place-address {
-  margin-top: 6px;
-  color: #666;
-  font-size: 14px;
-}
-
-/* MOBILE */
-
-@media(max-width:600px) {
-
-  .top-card {
-    top: 10px;
-  }
-
-  #searchInput {
-    font-size: 16px;
-  }
-
-  .message {
-    top: 140px;
-    font-size: 16px;
-  }
-
-}
-
-</style>
-
+    .leaflet-popup-content {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="map"></div>
+  <div class="panel">
 
+    <div class="title">
+      🗺️ എന്റെ മാപ്പ്
+    </div>
 
-<!-- SEARCH -->
+    <div class="search-row">
 
-<div class="top-card">
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="സ്ഥലം അല്ലെങ്കിൽ Street തിരയുക"
+      >
 
-  <div class="search-row">
+      <button
+        class="search-btn"
+        onclick="searchPlace()">
+        🔎
+      </button>
 
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="Search a place..."
-      autocomplete="off">
+    </div>
 
     <button
-      class="search-button"
-      onclick="searchPlace()">
-      🔍
+      class="route-btn"
+      onclick="makeRoute()">
+      🚗 Route
     </button>
+
+    <div id="message" class="message"></div>
 
   </div>
 
   <button
-    class="route-button"
-    onclick="makeRoute()">
-    🚗 Get Route
+    class="location-btn"
+    onclick="myLocation()">
+    📍
   </button>
 
-</div>
+  <div id="map"></div>
 
 
-<!-- MESSAGE -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<div
-  id="message"
-  class="message">
-</div>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 
 
-<!-- PLACE INFO -->
+  <script>
 
-<div
-  id="placeCard"
-  class="place-card">
-
-  <div
-    id="placeName"
-    class="place-name">
-  </div>
-
-  <div
-    id="placeAddress"
-    class="place-address">
-  </div>
-
-</div>
+    let map;
+    let marker = null;
+    let destination = null;
+    let routeControl = null;
 
 
-<!-- LOCATION -->
+    /* MAP */
 
-<button
-  class="location-button"
-  onclick="myLocation()">
-  📍
-</button>
-
-
-<script
-src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
-
-
-<script>
-
-/* =========================
-   VARIABLES
-========================= */
-
-let map;
-let marker = null;
-let userMarker = null;
-let destination = null;
-let routeLine = null;
-
-
-/* =========================
-   MAP
-========================= */
-
-map = L.map("map")
-  .setView(
-    [24.4539, 54.3773],
-    12
-  );
-
-
-/* =========================
-   MAP LAYER
-========================= */
-
-/*
-  Esri Street Map
-  English-style street map
-*/
-
-L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-  {
-    maxZoom: 19,
-    attribution:
-      "Tiles © Esri"
-  }
-).addTo(map);
-
-
-/* =========================
-   MESSAGE
-========================= */
-
-function showMessage(text) {
-
-  const box =
-    document.getElementById("message");
-
-  box.innerHTML = text;
-
-  box.style.display = "block";
-}
-
-
-function hideMessage() {
-
-  document.getElementById("message")
-    .style.display = "none";
-}
-
-
-/* =========================
-   SEARCH
-========================= */
-
-async function searchPlace() {
-
-  const input =
-    document.getElementById("searchInput");
-
-  const query =
-    input.value.trim();
-
-
-  if (query === "") {
-
-    showMessage(
-      "⚠️ Please enter a place name."
+    map = L.map("map").setView(
+      [24.4539, 54.3773],
+      12
     );
 
-    return;
-  }
 
+    /*
+      English-style map.
+      Arabic labels ഒഴിവാക്കാൻ
+      Esri World Street Map ഉപയോഗിക്കുന്നു.
+    */
 
-  showMessage(
-    "🔎 Searching..."
-  );
-
-
-  try {
-
-    const searches = [
-
-      query + ", Abu Dhabi, UAE",
-
-      query + ", UAE",
-
-      query
-
-    ];
-
-
-    let found = null;
-
-
-    for (let q of searches) {
-
-      const url =
-        "https://nominatim.openstreetmap.org/search?" +
-        "format=json" +
-        "&limit=10" +
-        "&addressdetails=1" +
-        "&accept-language=en" +
-        "&q=" +
-        encodeURIComponent(q);
-
-
-      const response =
-        await fetch(url);
-
-
-      const data =
-        await response.json();
-
-
-      if (data.length > 0) {
-
-        found =
-          data.find(item =>
-            item.display_name
-              .toLowerCase()
-              .includes("abu dhabi")
-          ) || data[0];
-
-        break;
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 19,
+        attribution:
+          "© Esri"
       }
+    ).addTo(map);
+
+
+    /* DEFAULT MARKER */
+
+    marker = L.marker(
+      [24.4539, 54.3773]
+    ).addTo(map);
+
+    marker.bindPopup(
+      "📍 അബുദാബി"
+    );
+
+
+    /* MESSAGE */
+
+    function showMessage(text) {
+
+      const box =
+        document.getElementById("message");
+
+      box.innerHTML = text;
+
+      box.style.display = "block";
     }
 
 
-    if (!found) {
+    /* SEARCH */
 
-      showMessage(
-        "❌ Place not found."
-      );
+    async function searchPlace() {
 
-      return;
-    }
+      const input =
+        document.getElementById("searchInput");
 
+      let query =
+        input.value.trim();
 
-    showPlace(found);
 
-  }
+      if (query === "") {
 
-  catch(error) {
-
-    console.log(error);
-
-    showMessage(
-      "❌ Search failed. Check your internet connection."
-    );
-
-  }
-
-}
-
-
-/* =========================
-   SHOW PLACE
-========================= */
-
-function showPlace(found) {
-
-  const lat =
-    parseFloat(found.lat);
-
-  const lon =
-    parseFloat(found.lon);
-
-
-  destination =
-    [lat, lon];
-
-
-  map.setView(
-    [lat, lon],
-    17
-  );
-
-
-  if (marker) {
-
-    map.removeLayer(marker);
-
-  }
-
-
-  marker =
-    L.marker(
-      [lat, lon]
-    )
-    .addTo(map)
-    .bindPopup(
-      "📍 " +
-      cleanName(found)
-    )
-    .openPopup();
-
-
-  /*
-    Place card
-  */
-
-  document.getElementById(
-    "placeName"
-  ).innerText =
-    "📍 " + cleanName(found);
-
-
-  document.getElementById(
-    "placeAddress"
-  ).innerText =
-    cleanAddress(found);
-
-
-  document.getElementById(
-    "placeCard"
-  ).style.display =
-    "block";
-
-
-  showMessage(
-    "✅ Place found!"
-  );
-
-
-  setTimeout(
-    hideMessage,
-    2500
-  );
-
-}
-
-
-/* =========================
-   CLEAN NAME
-========================= */
-
-function cleanName(found) {
-
-  const a =
-    found.address || {};
-
-
-  return (
-    a.road ||
-    a.neighbourhood ||
-    a.suburb ||
-    a.city ||
-    found.name ||
-    "Selected place"
-  );
-
-}
-
-
-/* =========================
-   CLEAN ADDRESS
-========================= */
-
-function cleanAddress(found) {
-
-  const a =
-    found.address || {};
-
-
-  const parts = [
-
-    a.road,
-
-    a.neighbourhood,
-
-    a.suburb,
-
-    a.city,
-
-    a.state,
-
-    a.country
-
-  ];
-
-
-  return parts
-    .filter(Boolean)
-    .join(", ");
-
-}
-
-
-/* =========================
-   MY LOCATION
-========================= */
-
-function myLocation() {
-
-  if (!navigator.geolocation) {
-
-    showMessage(
-      "❌ Location is not supported."
-    );
-
-    return;
-  }
-
-
-  showMessage(
-    "📍 Finding your location..."
-  );
-
-
-  navigator.geolocation.getCurrentPosition(
-
-    function(position) {
-
-      const lat =
-        position.coords.latitude;
-
-      const lon =
-        position.coords.longitude;
-
-
-      const location =
-        [lat, lon];
-
-
-      map.setView(
-        location,
-        17
-      );
-
-
-      if (userMarker) {
-
-        map.removeLayer(
-          userMarker
+        showMessage(
+          "⚠️ ആദ്യം ഒരു സ്ഥലം എഴുതുക."
         );
 
+        return;
       }
 
 
-      userMarker =
-        L.marker(location)
-        .addTo(map)
-        .bindPopup(
-          "📍 Your current location"
-        )
-        .openPopup();
-
-
       showMessage(
-        "✅ Your location found!"
+        "🔎 സ്ഥലം തിരയുന്നു..."
       );
-
-
-      setTimeout(
-        hideMessage,
-        2500
-      );
-
-    },
-
-
-    function() {
-
-      showMessage(
-        "❌ Please allow location permission."
-      );
-
-    },
-
-
-    {
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0
-    }
-
-  );
-
-}
-
-
-/* =========================
-   ROUTE
-========================= */
-
-async function makeRoute() {
-
-  if (!destination) {
-
-    showMessage(
-      "⚠️ Search for a place first."
-    );
-
-    return;
-  }
-
-
-  if (!navigator.geolocation) {
-
-    showMessage(
-      "❌ Location is not supported."
-    );
-
-    return;
-  }
-
-
-  showMessage(
-    "🚗 Creating route..."
-  );
-
-
-  navigator.geolocation.getCurrentPosition(
-
-    async function(position) {
-
-      const startLat =
-        position.coords.latitude;
-
-      const startLon =
-        position.coords.longitude;
-
-
-      const endLat =
-        destination[0];
-
-      const endLon =
-        destination[1];
 
 
       try {
 
-        const url =
-          "https://router.project-osrm.org/route/v1/driving/" +
-          startLon + "," +
-          startLat + ";" +
-          endLon + "," +
-          endLat +
-          "?overview=full&geometries=geojson";
+        let searches = [
+
+          query + ", Abu Dhabi, UAE",
+
+          query + ", UAE",
+
+          query
+
+        ];
 
 
-        const response =
-          await fetch(url);
+        let found = null;
 
 
-        const data =
-          await response.json();
+        for (let q of searches) {
+
+          const url =
+            "https://nominatim.openstreetmap.org/search?" +
+            "format=json" +
+            "&limit=10" +
+            "&addressdetails=1" +
+            "&namedetails=1" +
+            "&q=" +
+            encodeURIComponent(q);
 
 
-        if (
-          !data.routes ||
-          data.routes.length === 0
-        ) {
+          const response =
+            await fetch(url, {
+              headers: {
+                "Accept":
+                  "application/json"
+              }
+            });
+
+
+          const data =
+            await response.json();
+
+
+          if (data.length > 0) {
+
+            found =
+              data.find(item => {
+
+                const name =
+                  (
+                    item.display_name ||
+                    ""
+                  ).toLowerCase();
+
+                return (
+                  name.includes("abu dhabi") ||
+                  name.includes("uae") ||
+                  name.includes("united arab emirates")
+                );
+
+              }) || data[0];
+
+
+            if (found) {
+              break;
+            }
+          }
+        }
+
+
+        if (!found) {
 
           showMessage(
-            "❌ Route not found."
+            "❌ ഈ സ്ഥലം കണ്ടെത്താൻ കഴിഞ്ഞില്ല."
           );
 
           return;
         }
 
 
-        const route =
-          data.routes[0];
+        const lat =
+          parseFloat(found.lat);
+
+        const lon =
+          parseFloat(found.lon);
 
 
-        if (routeLine) {
+        destination =
+          [lat, lon];
 
-          map.removeLayer(
-            routeLine
-          );
+
+        map.setView(
+          [lat, lon],
+          17
+        );
+
+
+        if (marker) {
+
+          map.removeLayer(marker);
 
         }
 
 
-        const coordinates =
-          route.geometry.coordinates
-          .map(point => [
-            point[1],
-            point[0]
-          ]);
-
-
-        routeLine =
-          L.polyline(
-            coordinates,
-            {
-              weight: 6,
-              opacity: 0.85
-            }
+        marker =
+          L.marker(
+            [lat, lon]
           ).addTo(map);
 
 
-        map.fitBounds(
-          routeLine.getBounds(),
-          {
-            padding: [40, 40]
-          }
-        );
+        /*
+          English name കിട്ടിയാൽ
+          അത് ഉപയോഗിക്കും.
+        */
 
-
-        const distance =
+        let placeName =
+          found.namedetails &&
           (
-            route.distance / 1000
-          ).toFixed(1);
-
-
-        const minutes =
-          Math.round(
-            route.duration / 60
+            found.namedetails["name:en"] ||
+            found.namedetails["name"]
           );
 
 
+        if (!placeName) {
+
+          placeName =
+            found.display_name;
+
+        }
+
+
+        marker
+          .bindPopup(
+            "📍 " + placeName
+          )
+          .openPopup();
+
+
         showMessage(
-          "🚗 Route ready!<br>" +
-          "📏 " + distance +
-          " km &nbsp; • &nbsp; " +
-          "⏱️ " + minutes +
-          " min"
+          "✅ സ്ഥലം കണ്ടെത്തി!"
         );
 
       }
 
-      catch(error) {
+      catch (error) {
 
         console.log(error);
 
         showMessage(
-          "❌ Could not create route."
+          "❌ Search ചെയ്യാൻ കഴിഞ്ഞില്ല. Internet പരിശോധിക്കുക."
         );
 
       }
 
-    },
-
-
-    function() {
-
-      showMessage(
-        "❌ Please allow location permission for route."
-      );
-
-    },
-
-
-    {
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0
     }
 
-  );
 
-}
+    /* CURRENT LOCATION */
 
+    function myLocation() {
 
-/* =========================
-   ENTER TO SEARCH
-========================= */
+      if (!navigator.geolocation) {
 
-document
-  .getElementById("searchInput")
-  .addEventListener(
-    "keydown",
-    function(event) {
+        showMessage(
+          "❌ ഈ ഫോണിൽ Location support ഇല്ല."
+        );
 
-      if (
-        event.key === "Enter"
-      ) {
-
-        searchPlace();
-
+        return;
       }
 
-    }
-  );
 
-</script>
+      showMessage(
+        "📍 നിങ്ങളുടെ സ്ഥലം കണ്ടെത്തുന്നു..."
+      );
+
+
+      navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+          const lat =
+            position.coords.latitude;
+
+          const lon =
+            position.coords.longitude;
+
+
+          const location =
+            [lat, lon];
+
+
+          map.setView(
+            location,
+            17
+          );
+
+
+          if (marker) {
+
+            map.removeLayer(marker);
+
+          }
+
+
+          marker =
+            L.marker(location)
+              .addTo(map)
+              .bindPopup(
+                "📍 നിങ്ങളുടെ സ്ഥലം"
+              )
+              .openPopup();
+
+
+          showMessage(
+            "✅ നിങ്ങളുടെ സ്ഥലം കണ്ടെത്തി!"
+          );
+
+        },
+
+
+        function() {
+
+          showMessage(
+            "❌ Location permission അനുവദിക്കണം."
+          );
+
+        },
+
+        {
+          enableHighAccuracy: true,
+          timeout: 10000
+        }
+
+      );
+
+    }
+
+
+    /* ROUTE */
+
+    function makeRoute() {
+
+      if (!destination) {
+
+        showMessage(
+          "⚠️ ആദ്യം ഒരു സ്ഥലം Search ചെയ്യുക."
+        );
+
+        return;
+      }
+
+
+      if (!navigator.geolocation) {
+
+        showMessage(
+          "❌ Location support ഇല്ല."
+        );
+
+        return;
+      }
+
+
+      navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+          const start =
+            L.latLng(
+              position.coords.latitude,
+              position.coords.longitude
+            );
+
+
+          const end =
+            L.latLng(
+              destination[0],
+              destination[1]
+            );
+
+
+          if (routeControl) {
+
+            map.removeControl(
+              routeControl
+            );
+
+          }
+
+
+          routeControl =
+            L.Routing.control({
+
+              waypoints: [
+                start,
+                end
+              ],
+
+              routeWhileDragging:
+                false,
+
+              addWaypoints:
+                false,
+
+              showAlternatives:
+                false,
+
+              language:
+                "en",
+
+              createMarker:
+                function() {
+                  return null;
+                }
+
+            }).addTo(map);
+
+
+          showMessage(
+            "🚗 Route തയ്യാറാക്കുന്നു..."
+          );
+
+        },
+
+
+        function() {
+
+          showMessage(
+            "❌ Route കാണാൻ Location permission വേണം."
+          );
+
+        }
+
+      );
+
+    }
+
+
+    /* ENTER BUTTON */
+
+    document
+      .getElementById("searchInput")
+      .addEventListener(
+        "keydown",
+        function(event) {
+
+          if (
+            event.key === "Enter"
+          ) {
+
+            searchPlace();
+
+          }
+
+        }
+      );
+
+  </script>
 
 </body>
 </html>
