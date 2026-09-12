@@ -241,15 +241,12 @@ const map = L.map("map").setView(
 */
 
 L.tileLayer(
-  "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   {
-    maxZoom: 20,
-
-    attribution:
-      "© OpenStreetMap © CARTO"
+    maxZoom: 19,
+    attribution: "© OpenStreetMap contributors"
   }
 ).addTo(map);
-
 
 /* =====================================
    VARIABLES
