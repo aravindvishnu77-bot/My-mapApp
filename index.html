@@ -9,6 +9,9 @@
   <link rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
+
   <style>
     * {
       box-sizing: border-box;
@@ -30,29 +33,41 @@
       left: 15px;
       right: 15px;
       z-index: 1000;
-      display: flex;
-      gap: 8px;
+      background: white;
+      padding: 10px;
+      border-radius: 18px;
+      box-shadow: 0 2px 10px #777;
     }
 
-    #search {
-      flex: 1;
-      height: 48px;
-      border: none;
-      border-radius: 25px;
-      padding: 0 18px;
+    .search-box input {
+      width: 100%;
+      height: 45px;
+      border: 1px solid #ddd;
+      border-radius: 22px;
+      padding: 0 15px;
       font-size: 16px;
-      box-shadow: 0 2px 10px #777;
       outline: none;
     }
 
-    .search-btn {
-      width: 48px;
-      height: 48px;
+    .buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    button {
+      flex: 1;
+      height: 42px;
       border: none;
-      border-radius: 50%;
-      background: white;
-      font-size: 21px;
-      box-shadow: 0 2px 10px #777;
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 1px 5px #999;
+      font-size: 15px;
+    }
+
+    .route-btn {
+      background: #222;
+      color: white;
     }
 
     .location-btn {
@@ -62,11 +77,9 @@
       z-index: 1000;
       width: 58px;
       height: 58px;
-      border: none;
       border-radius: 50%;
       background: white;
-      font-size: 25px;
-      box-shadow: 0 2px 10px #777;
+      font-size: 24px;
     }
   </style>
 </head>
@@ -74,15 +87,18 @@
 <body>
 
   <div class="search-box">
+
     <input
       id="search"
       type="text"
-      placeholder="സ്ഥലം Search ചെയ്യുക..."
+      placeholder="Destination Search ചെയ്യുക..."
     >
 
-    <button class="search-btn" onclick="searchPlace()">
-      🔍
-    </button>
+    <div class="buttons">
+      <button onclick="searchPlace()">🔍 Search</button>
+      <button class="route-btn" onclick="makeRoute()">🚗 Route</button>
+    </div>
+
   </div>
 
   <button class="location-btn" onclick="myLocation()">
@@ -92,6 +108,8 @@
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
   <script>
 
@@ -107,17 +125,19 @@
       }
     ).addTo(map);
 
-    let marker = L.marker(defaultLocation)
-      .addTo(map)
-      .bindPopup("My Map App");
+    let currentLocation = null;
+    let destination = null;
+    let marker = null;
+    let routeControl = null;
 
-    // SEARCH
+    // SEARCH DESTINATION
     async function searchPlace() {
 
-      const query = document.getElementById("search").value.trim();
+      const query =
+        document.getElementById("search").value.trim();
 
       if (!query) {
-        alert("സ്ഥലത്തിന്റെ പേര് എഴുതൂ.");
+        alert("Destination എഴുതൂ.");
         return;
       }
 
@@ -127,11 +147,7 @@
           "https://nominatim.openstreetmap.org/search?format=json&q="
           + encodeURIComponent(query);
 
-        const response = await fetch(url, {
-          headers: {
-            "Accept": "application/json"
-          }
-        });
+        const response = await fetch(url);
 
         const data = await response.json();
 
@@ -142,41 +158,34 @@
 
         const place = data[0];
 
-        const lat = parseFloat(place.lat);
-        const lon = parseFloat(place.lon);
+        destination = [
+          parseFloat(place.lat),
+          parseFloat(place.lon)
+        ];
 
-        map.setView([lat, lon], 16);
+        map.setView(destination, 15);
 
-        marker.setLatLng([lat, lon]);
+        if (marker) {
+          map.removeLayer(marker);
+        }
 
-        marker
-          .bindPopup("📍 " + place.display_name)
+        marker = L.marker(destination)
+          .addTo(map)
+          .bindPopup("🏁 " + place.display_name)
           .openPopup();
 
       } catch (error) {
 
-        alert("Search ചെയ്യാൻ കഴിഞ്ഞില്ല. Internet പരിശോധിക്കൂ.");
+        alert("Search failed.");
 
       }
     }
 
-    // ENTER KEY SEARCH
-    document.getElementById("search").addEventListener(
-      "keypress",
-      function(event) {
-
-        if (event.key === "Enter") {
-          searchPlace();
-        }
-
-      }
-    );
-
-    // MY LOCATION
+    // CURRENT LOCATION
     function myLocation() {
 
       if (!navigator.geolocation) {
-        alert("ഈ ഫോണിൽ Location support ഇല്ല.");
+        alert("Location support ഇല്ല.");
         return;
       }
 
@@ -184,26 +193,75 @@
 
         function(position) {
 
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
+          currentLocation = [
+            position.coords.latitude,
+            position.coords.longitude
+          ];
 
-          map.setView([lat, lon], 17);
+          map.setView(currentLocation, 16);
 
-          marker.setLatLng([lat, lon]);
+          if (marker) {
+            map.removeLayer(marker);
+          }
 
-          marker
+          marker = L.marker(currentLocation)
+            .addTo(map)
             .bindPopup("📍 നിങ്ങളുടെ സ്ഥലം")
             .openPopup();
 
         },
 
         function() {
-
           alert("Location permission അനുവദിക്കണം.");
-
         }
 
       );
+    }
+
+    // CREATE ROUTE
+    function makeRoute() {
+
+      if (!currentLocation) {
+        alert("ആദ്യം 📍 Location അമർത്തൂ.");
+        return;
+      }
+
+      if (!destination) {
+        alert("ആദ്യം Destination Search ചെയ്യൂ.");
+        return;
+      }
+
+      if (routeControl) {
+        map.removeControl(routeControl);
+      }
+
+      routeControl = L.Routing.control({
+
+        waypoints: [
+
+          L.latLng(
+            currentLocation[0],
+            currentLocation[1]
+          ),
+
+          L.latLng(
+            destination[0],
+            destination[1]
+          )
+
+        ],
+
+        routeWhileDragging: false,
+
+        showAlternatives: true,
+
+        language: "en",
+
+        createMarker: function() {
+          return null;
+        }
+
+      }).addTo(map);
     }
 
   </script>
