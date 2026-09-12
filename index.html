@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-<title>My Malayalam Map</title>
+<title>എന്റെ മാപ്പ്</title>
 
 <link
   rel="stylesheet"
@@ -12,6 +13,7 @@
 />
 
 <style>
+
 * {
   box-sizing: border-box;
 }
@@ -30,7 +32,9 @@ body {
   height: 100vh;
 }
 
-/* SEARCH PANEL */
+/* =========================
+   SEARCH PANEL
+========================= */
 
 .search-panel {
   position: absolute;
@@ -41,27 +45,29 @@ body {
 
   background: white;
   padding: 14px;
-  border-radius: 22px;
 
-  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  border-radius: 25px;
+
+  box-shadow:
+    0 5px 20px rgba(0,0,0,0.25);
 }
 
 .search-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 #searchInput {
   flex: 1;
 
-  height: 55px;
+  height: 58px;
 
   border: 1px solid #ccc;
-  border-radius: 15px;
+  border-radius: 17px;
 
-  padding: 0 15px;
+  padding: 0 16px;
 
-  font-size: 17px;
+  font-size: 18px;
 
   outline: none;
 }
@@ -71,53 +77,72 @@ body {
 }
 
 .search-btn {
-  width: 65px;
-  height: 55px;
+  width: 78px;
+  height: 58px;
 
   border: none;
-  border-radius: 15px;
+  border-radius: 17px;
 
   background: #4285f4;
+
   color: white;
 
-  font-size: 25px;
+  font-size: 28px;
+
+  cursor: pointer;
 }
 
 .route-btn {
   width: 100%;
-  height: 52px;
 
-  margin-top: 10px;
+  height: 58px;
+
+  margin-top: 12px;
 
   border: none;
-  border-radius: 15px;
+  border-radius: 17px;
 
   background: #222;
+
   color: white;
 
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 20px;
+
+  cursor: pointer;
 }
 
-/* MESSAGE */
+.search-btn:active,
+.route-btn:active,
+.location-btn:active {
+  transform: scale(0.97);
+}
+
+/* =========================
+   MESSAGE
+========================= */
 
 #message {
   display: none;
 
   margin-top: 10px;
 
-  padding: 12px;
+  padding: 13px;
 
-  border-radius: 15px;
+  background: white;
+
+  border-radius: 18px;
 
   text-align: center;
 
-  font-size: 16px;
+  font-size: 17px;
 
-  background: #f5f5f5;
+  box-shadow:
+    0 3px 12px rgba(0,0,0,0.18);
 }
 
-/* LOCATION BUTTON */
+/* =========================
+   LOCATION BUTTON
+========================= */
 
 .location-btn {
   position: absolute;
@@ -127,20 +152,26 @@ body {
   right: 18px;
   bottom: 25px;
 
-  width: 60px;
-  height: 60px;
+  width: 62px;
+  height: 62px;
 
   border: none;
+
   border-radius: 50%;
 
   background: white;
 
-  font-size: 28px;
+  box-shadow:
+    0 4px 15px rgba(0,0,0,0.25);
 
-  box-shadow: 0 3px 15px rgba(0,0,0,0.3);
+  font-size: 30px;
+
+  cursor: pointer;
 }
 
-/* ROUTE INFO */
+/* =========================
+   ROUTE INFO
+========================= */
 
 #routeInfo {
   display: none;
@@ -152,18 +183,43 @@ body {
   left: 15px;
   right: 15px;
 
-  bottom: 15px;
+  bottom: 18px;
 
   background: white;
 
-  padding: 15px;
+  border-radius: 20px;
 
-  border-radius: 18px;
+  padding: 16px;
 
-  box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+  box-shadow:
+    0 4px 18px rgba(0,0,0,0.3);
 
-  font-size: 16px;
+  font-size: 17px;
 }
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+  .search-panel {
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    padding: 12px;
+  }
+
+  #searchInput {
+    font-size: 17px;
+  }
+
+  .search-btn {
+    width: 72px;
+  }
+
+}
+
 </style>
 </head>
 
@@ -181,7 +237,7 @@ body {
     <input
       id="searchInput"
       type="text"
-      placeholder="Search place or street"
+      placeholder="സ്ഥലം അല്ലെങ്കിൽ Street തിരയുക"
     >
 
     <button
@@ -197,7 +253,7 @@ body {
     class="route-btn"
     onclick="makeRoute()">
 
-    🚗 Route
+    🚗 Route കാണിക്കുക
 
   </button>
 
@@ -218,17 +274,21 @@ body {
 </button>
 
 
+<!-- ROUTE INFO -->
+
 <div id="routeInfo"></div>
 
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
 
 
 <script>
 
-/* =====================================
+/* =====================================================
    MAP
-===================================== */
+===================================================== */
 
 const map = L.map("map").setView(
   [24.4539, 54.3773],
@@ -236,21 +296,25 @@ const map = L.map("map").setView(
 );
 
 
-/*
-   Map layer
-*/
+/* =====================================================
+   OPENSTREETMAP
+   API KEY NOT REQUIRED
+===================================================== */
 
 L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   {
     maxZoom: 19,
-    attribution: "© OpenStreetMap contributors"
+
+    attribution:
+      '&copy; OpenStreetMap contributors'
   }
 ).addTo(map);
 
-/* =====================================
+
+/* =====================================================
    VARIABLES
-===================================== */
+===================================================== */
 
 let marker = null;
 
@@ -260,10 +324,12 @@ let userLocation = null;
 
 let routeLine = null;
 
+let userMarker = null;
 
-/* =====================================
+
+/* =====================================================
    MESSAGE
-===================================== */
+===================================================== */
 
 function showMessage(text) {
 
@@ -273,26 +339,27 @@ function showMessage(text) {
   box.innerHTML = text;
 
   box.style.display = "block";
+
 }
 
 
-/* =====================================
-   SEARCH
-===================================== */
+/* =====================================================
+   SEARCH PLACE
+===================================================== */
 
 async function searchPlace() {
 
-  let query =
-    document
-      .getElementById("searchInput")
-      .value
-      .trim();
+  const input =
+    document.getElementById("searchInput");
+
+  const query =
+    input.value.trim();
 
 
   if (query === "") {
 
     showMessage(
-      "⚠️ Please enter a place or street."
+      "⚠️ ആദ്യം ഒരു സ്ഥലം എഴുതുക."
     );
 
     return;
@@ -300,91 +367,55 @@ async function searchPlace() {
 
 
   showMessage(
-    "🔎 Searching..."
+    "🔎 സ്ഥലം തിരയുന്നു..."
   );
-
-
-  /*
-     Common spellings
-  */
-
-  let searches = [
-
-    query + ", Abu Dhabi, UAE",
-
-    query + ", Abu Dhabi",
-
-    query + ", UAE",
-
-    query
-
-  ];
-
-
-  /*
-     Special street
-  */
-
-  if (
-    query.toLowerCase()
-      .includes("khab al hitam") ||
-
-    query.toLowerCase()
-      .includes("khab al hitham")
-  ) {
-
-    searches.unshift(
-      "Khab Al Hitham Street, Abu Dhabi, UAE"
-    );
-
-    searches.unshift(
-      "Khab Al Hitam Street, Abu Dhabi, UAE"
-    );
-
-  }
 
 
   try {
 
+    const searches = [
+
+      query + ", Abu Dhabi, UAE",
+
+      query + ", Abu Dhabi",
+
+      query + ", UAE",
+
+      query
+
+    ];
+
+
     let found = null;
 
 
-    for (
-      const searchText
-      of searches
-    ) {
+    for (const q of searches) {
 
       const url =
         "https://nominatim.openstreetmap.org/search?" +
-
         "format=json" +
-
-        "&q=" +
-        encodeURIComponent(searchText) +
-
         "&limit=10" +
-
         "&addressdetails=1" +
-
-        "&namedetails=1" +
-
-        "&countrycodes=ae";
+        "&countrycodes=ae" +
+        "&q=" +
+        encodeURIComponent(q);
 
 
       const response =
-        await fetch(
-          url,
-          {
-            headers: {
-              "Accept":
-                "application/json"
-            }
+        await fetch(url, {
+
+          headers: {
+            "Accept":
+              "application/json"
           }
-        );
+
+        });
 
 
       if (!response.ok) {
+
         continue;
+
       }
 
 
@@ -394,36 +425,38 @@ async function searchPlace() {
 
       if (data.length > 0) {
 
-        /*
-           Prefer Abu Dhabi
-        */
-
         found =
-          data.find(
-            item => {
+          data.find(item => {
 
-              const text =
-                (
-                  item.display_name ||
-                  ""
-                ).toLowerCase();
+            const text =
+              (
+                item.display_name +
+                " " +
+                (item.address?.city || "") +
+                " " +
+                (item.address?.state || "")
+              ).toLowerCase();
 
 
-              return (
-                text.includes(
-                  "abu dhabi"
-                ) ||
-                text.includes(
-                  "bani yas"
-                )
-              );
+            return (
 
-            }
-          ) || data[0];
+              text.includes("abu dhabi") ||
+
+              text.includes("أبو ظبي") ||
+
+              text.includes("bani yas") ||
+
+              text.includes("بني ياس")
+
+            );
+
+          }) || data[0];
 
 
         if (found) {
+
           break;
+
         }
 
       }
@@ -431,31 +464,33 @@ async function searchPlace() {
     }
 
 
+    /* NOT FOUND */
+
     if (!found) {
 
       showMessage(
-        "❌ Place not found."
+        "❌ ഈ സ്ഥലം കണ്ടെത്താൻ കഴിഞ്ഞില്ല."
       );
 
       return;
+
     }
 
 
     const lat =
       parseFloat(found.lat);
 
-
     const lon =
       parseFloat(found.lon);
 
 
-    destination =
-      [lat, lon];
+    destination = [
+      lat,
+      lon
+    ];
 
 
-    /*
-       Move map
-    */
+    /* MOVE MAP */
 
     map.setView(
       [lat, lon],
@@ -463,22 +498,16 @@ async function searchPlace() {
     );
 
 
-    /*
-       Remove old marker
-    */
+    /* REMOVE OLD MARKER */
 
     if (marker) {
 
-      map.removeLayer(
-        marker
-      );
+      map.removeLayer(marker);
 
     }
 
 
-    /*
-       Add marker
-    */
+    /* NEW MARKER */
 
     marker =
       L.marker(
@@ -487,24 +516,18 @@ async function searchPlace() {
       .addTo(map);
 
 
-    /*
-       Get English name
-       when available
-    */
-
-    let name =
-      getPlaceName(found);
-
+    /* POPUP */
 
     marker
       .bindPopup(
-        "📍 " + name
+        "📍 " +
+        cleanPlaceName(found)
       )
       .openPopup();
 
 
     showMessage(
-      "✅ Place found!"
+      "✅ സ്ഥലം കണ്ടെത്തി!"
     );
 
   }
@@ -514,7 +537,7 @@ async function searchPlace() {
     console.log(error);
 
     showMessage(
-      "❌ Search failed. Check your internet."
+      "❌ Search ചെയ്യാൻ കഴിഞ്ഞില്ല."
     );
 
   }
@@ -522,66 +545,51 @@ async function searchPlace() {
 }
 
 
-/* =====================================
+/* =====================================================
    PLACE NAME
-===================================== */
+===================================================== */
 
-function getPlaceName(place) {
-
-  if (
-    place.namedetails &&
-    place.namedetails["name:ml"]
-  ) {
-
-    return place.namedetails["name:ml"];
-
-  }
-
-
-  if (
-    place.namedetails &&
-    place.namedetails["name:en"]
-  ) {
-
-    return place.namedetails["name:en"];
-
-  }
-
+function cleanPlaceName(place) {
 
   if (
     place.address &&
     place.address.road
   ) {
 
-    return place.address.road;
+    let name =
+      place.address.road;
+
+
+    if (place.address.city) {
+
+      name +=
+        ", " +
+        place.address.city;
+
+    }
+
+
+    return name;
 
   }
 
 
-  return (
-    place.name ||
-    place.display_name ||
-    "Selected place"
-  );
+  return place.display_name;
 
 }
 
 
-/* =====================================
+/* =====================================================
    ENTER KEY
-===================================== */
+===================================================== */
 
 document
-  .getElementById(
-    "searchInput"
-  )
+  .getElementById("searchInput")
   .addEventListener(
     "keydown",
     function(event) {
 
-      if (
-        event.key === "Enter"
-      ) {
+      if (event.key === "Enter") {
 
         searchPlace();
 
@@ -591,190 +599,203 @@ document
   );
 
 
-/* =====================================
+/* =====================================================
    MY LOCATION
-===================================== */
+===================================================== */
 
 function findMyLocation() {
 
-  if (
-    !navigator.geolocation
-  ) {
+  if (!navigator.geolocation) {
 
     showMessage(
-      "❌ Location is not supported."
+      "❌ നിങ്ങളുടെ ഫോണിൽ Location support ഇല്ല."
     );
 
     return;
+
   }
 
 
   showMessage(
-    "📍 Finding your location..."
+    "📍 നിങ്ങളുടെ സ്ഥലം കണ്ടെത്തുന്നു..."
   );
 
 
-  navigator
-    .geolocation
-    .getCurrentPosition(
+  navigator.geolocation.getCurrentPosition(
 
-      function(position) {
+    function(position) {
 
-        const lat =
-          position.coords.latitude;
+      const lat =
+        position.coords.latitude;
 
-
-        const lon =
-          position.coords.longitude;
+      const lon =
+        position.coords.longitude;
 
 
-        userLocation =
-          [lat, lon];
+      userLocation = [
+        lat,
+        lon
+      ];
 
 
-        map.setView(
-          [lat, lon],
-          17
+      map.setView(
+        [lat, lon],
+        17
+      );
+
+
+      /* REMOVE OLD USER MARKER */
+
+      if (userMarker) {
+
+        map.removeLayer(
+          userMarker
         );
 
+      }
 
+
+      /* USER MARKER */
+
+      userMarker =
         L.marker(
           [lat, lon]
         )
-        .addTo(map)
+        .addTo(map);
+
+
+      userMarker
         .bindPopup(
-          "📍 My Location"
+          "📍 നിങ്ങളുടെ ഇപ്പോഴത്തെ സ്ഥലം"
         )
         .openPopup();
 
 
-        showMessage(
-          "✅ Location found!"
-        );
+      showMessage(
+        "✅ നിങ്ങളുടെ Location കണ്ടെത്തി!"
+      );
 
-      },
-
-
-      function(error) {
-
-        console.log(error);
+    },
 
 
-        showMessage(
-          "❌ Please allow location permission."
-        );
+    function(error) {
 
-      },
+      console.log(error);
 
 
-      {
-        enableHighAccuracy:
-          true,
+      showMessage(
+        "❌ Location permission അനുവദിക്കുക."
+      );
 
-        timeout:
-          10000,
+    },
 
-        maximumAge:
-          0
-      }
 
-    );
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    }
+
+  );
 
 }
 
 
-/* =====================================
+/* =====================================================
    ROUTE
-===================================== */
+===================================================== */
 
 function makeRoute() {
 
   if (!destination) {
 
     showMessage(
-      "⚠️ Search a destination first."
+      "⚠️ ആദ്യം ഒരു സ്ഥലം Search ചെയ്യുക."
     );
 
     return;
+
   }
 
 
-  if (
-    !navigator.geolocation
-  ) {
+  if (!navigator.geolocation) {
 
     showMessage(
-      "❌ Location is not available."
+      "❌ Location ലഭ്യമല്ല."
     );
 
     return;
+
+  }
+
+
+  /* Already have location */
+
+  if (userLocation) {
+
+    calculateRoute();
+
+    return;
+
   }
 
 
   showMessage(
-    "📍 Getting your location..."
+    "📍 നിങ്ങളുടെ Location എടുക്കുന്നു..."
   );
 
 
-  navigator
-    .geolocation
-    .getCurrentPosition(
+  navigator.geolocation.getCurrentPosition(
 
-      function(position) {
+    function(position) {
 
-        userLocation = [
+      userLocation = [
 
-          position.coords.latitude,
+        position.coords.latitude,
 
-          position.coords.longitude
+        position.coords.longitude
 
-        ];
+      ];
 
 
-        calculateRoute();
+      calculateRoute();
 
-      },
-
-
-      function() {
-
-        showMessage(
-          "❌ Please allow location permission."
-        );
-
-      },
+    },
 
 
-      {
-        enableHighAccuracy:
-          true,
+    function() {
 
-        timeout:
-          10000,
+      showMessage(
+        "❌ Route കാണിക്കാൻ Location permission വേണം."
+      );
 
-        maximumAge:
-          0
-      }
+    },
 
-    );
+
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    }
+
+  );
 
 }
 
 
-/* =====================================
-   ROUTE CALCULATION
-===================================== */
+/* =====================================================
+   CALCULATE ROUTE
+===================================================== */
 
 async function calculateRoute() {
 
   showMessage(
-    "🚗 Creating route..."
+    "🚗 Route കണ്ടെത്തുന്നു..."
   );
 
 
   const start =
     userLocation;
-
 
   const end =
     destination;
@@ -802,6 +823,15 @@ async function calculateRoute() {
       await fetch(url);
 
 
+    if (!response.ok) {
+
+      throw new Error(
+        "Route server error"
+      );
+
+    }
+
+
     const data =
       await response.json();
 
@@ -812,10 +842,11 @@ async function calculateRoute() {
     ) {
 
       showMessage(
-        "❌ Route not found."
+        "❌ Route കണ്ടെത്താൻ കഴിഞ്ഞില്ല."
       );
 
       return;
+
     }
 
 
@@ -823,9 +854,7 @@ async function calculateRoute() {
       data.routes[0];
 
 
-    /*
-       Remove old route
-    */
+    /* REMOVE OLD ROUTE */
 
     if (routeLine) {
 
@@ -836,46 +865,39 @@ async function calculateRoute() {
     }
 
 
-    /*
-       Draw route
-    */
+    /* DRAW ROUTE */
 
     routeLine =
       L.geoJSON(
         route.geometry,
         {
-          weight: 6
+          style: {
+            weight: 6
+          }
         }
       )
       .addTo(map);
 
 
-    /*
-       Fit route
-    */
+    /* FIT MAP */
 
     map.fitBounds(
       routeLine.getBounds(),
       {
-        padding:
-          [40, 40]
+        padding: [50, 50]
       }
     );
 
 
-    /*
-       Distance
-    */
+    /* DISTANCE */
 
-    const distance =
+    const distanceKm =
       (
         route.distance / 1000
       ).toFixed(1);
 
 
-    /*
-       Time
-    */
+    /* TIME */
 
     const minutes =
       Math.round(
@@ -883,37 +905,33 @@ async function calculateRoute() {
       );
 
 
-    /*
-       Route information
-    */
+    /* ROUTE INFO */
 
-    document
-      .getElementById(
+    const info =
+      document.getElementById(
         "routeInfo"
-      )
-      .innerHTML =
+      );
 
-      "🚗 <b>Route Ready</b><br>" +
 
-      "📏 Distance: " +
-      distance +
+    info.innerHTML =
+
+      "🚗 <b>Route തയ്യാറായി</b><br><br>" +
+
+      "📏 ദൂരം: " +
+      distanceKm +
       " km<br>" +
 
-      "⏱️ Estimated time: " +
+      "⏱️ ഏകദേശം സമയം: " +
       minutes +
-      " minutes";
+      " മിനിറ്റ്";
 
 
-    document
-      .getElementById(
-        "routeInfo"
-      )
-      .style.display =
+    info.style.display =
       "block";
 
 
     showMessage(
-      "✅ Route ready!"
+      "✅ Route കണ്ടെത്തി!"
     );
 
   }
@@ -922,8 +940,9 @@ async function calculateRoute() {
 
     console.log(error);
 
+
     showMessage(
-      "❌ Could not create route."
+      "❌ Route ലഭിച്ചില്ല. Internet പരിശോധിക്കുക."
     );
 
   }
