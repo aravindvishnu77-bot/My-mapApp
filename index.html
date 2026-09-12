@@ -6,11 +6,8 @@
 
   <title>My Map App</title>
 
-  <!-- Leaflet -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
   <style>
     * {
@@ -27,18 +24,35 @@
       height: 100vh;
     }
 
-    .topbar {
+    .search-box {
       position: absolute;
       top: 15px;
       left: 15px;
       right: 15px;
       z-index: 1000;
+      display: flex;
+      gap: 8px;
+    }
+
+    #search {
+      flex: 1;
+      height: 48px;
+      border: none;
+      border-radius: 25px;
+      padding: 0 18px;
+      font-size: 16px;
+      box-shadow: 0 2px 10px #777;
+      outline: none;
+    }
+
+    .search-btn {
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
       background: white;
-      border-radius: 30px;
-      padding: 12px 18px;
-      box-shadow: 0 2px 12px #777;
-      font-size: 18px;
-      font-weight: bold;
+      font-size: 21px;
+      box-shadow: 0 2px 10px #777;
     }
 
     .location-btn {
@@ -52,15 +66,23 @@
       border-radius: 50%;
       background: white;
       font-size: 25px;
-      box-shadow: 0 2px 12px #777;
+      box-shadow: 0 2px 10px #777;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="topbar">
-    🗺️ My Map App
+  <div class="search-box">
+    <input
+      id="search"
+      type="text"
+      placeholder="സ്ഥലം Search ചെയ്യുക..."
+    >
+
+    <button class="search-btn" onclick="searchPlace()">
+      🔍
+    </button>
   </div>
 
   <button class="location-btn" onclick="myLocation()">
@@ -69,20 +91,14 @@
 
   <div id="map"></div>
 
-  <!-- Leaflet -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
 
-    // Default location
     const defaultLocation = [20.5937, 78.9629];
 
-    // Create map
     const map = L.map("map").setView(defaultLocation, 5);
 
-    // OpenStreetMap
     L.tileLayer(
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       {
@@ -91,13 +107,72 @@
       }
     ).addTo(map);
 
-    // Default marker
     let marker = L.marker(defaultLocation)
       .addTo(map)
-      .bindPopup("My Map App")
-      .openPopup();
+      .bindPopup("My Map App");
 
-    // My Location
+    // SEARCH
+    async function searchPlace() {
+
+      const query = document.getElementById("search").value.trim();
+
+      if (!query) {
+        alert("സ്ഥലത്തിന്റെ പേര് എഴുതൂ.");
+        return;
+      }
+
+      try {
+
+        const url =
+          "https://nominatim.openstreetmap.org/search?format=json&q="
+          + encodeURIComponent(query);
+
+        const response = await fetch(url, {
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.length === 0) {
+          alert("സ്ഥലം കണ്ടെത്താൻ കഴിഞ്ഞില്ല.");
+          return;
+        }
+
+        const place = data[0];
+
+        const lat = parseFloat(place.lat);
+        const lon = parseFloat(place.lon);
+
+        map.setView([lat, lon], 16);
+
+        marker.setLatLng([lat, lon]);
+
+        marker
+          .bindPopup("📍 " + place.display_name)
+          .openPopup();
+
+      } catch (error) {
+
+        alert("Search ചെയ്യാൻ കഴിഞ്ഞില്ല. Internet പരിശോധിക്കൂ.");
+
+      }
+    }
+
+    // ENTER KEY SEARCH
+    document.getElementById("search").addEventListener(
+      "keypress",
+      function(event) {
+
+        if (event.key === "Enter") {
+          searchPlace();
+        }
+
+      }
+    );
+
+    // MY LOCATION
     function myLocation() {
 
       if (!navigator.geolocation) {
@@ -110,21 +185,22 @@
         function(position) {
 
           const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
+          const lon = position.coords.longitude;
 
-          const myPlace = [lat, lng];
+          map.setView([lat, lon], 17);
 
-          map.setView(myPlace, 17);
-
-          marker.setLatLng(myPlace);
+          marker.setLatLng([lat, lon]);
 
           marker
             .bindPopup("📍 നിങ്ങളുടെ സ്ഥലം")
             .openPopup();
+
         },
 
         function() {
+
           alert("Location permission അനുവദിക്കണം.");
+
         }
 
       );
